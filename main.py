@@ -11,7 +11,7 @@ while x < 20 AND x > 1
 
 
 def main():
-    analizador_sintatico = AnalizadorSintatico(code)
+    analizador_sintatico = AnalizadorLexico(code)
     analizador_sintatico.tokenizar()
 
     parser = Parser(analizador_sintatico.get_token())
