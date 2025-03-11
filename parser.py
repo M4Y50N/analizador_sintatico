@@ -1,4 +1,4 @@
-from ast import OperacaoBinaria, Numero, Variavel, Atribuicao, Programa
+from ast import OperacaoBinaria, Numero, Variavel, Atribuicao, Programa, Booleano, Literal, OperacaoLogica
 
 
 class Parser:
@@ -35,14 +35,14 @@ class Parser:
 
     def condicional(self):
         self.consumir("palavras_reservadas")  # confirma se recebe o if e passa para o próximo token
-        self.expressao_if_while()
+        self.expressao()
         self.consumir("nova_linha")  # quebra de linha obrigatória
         self.linha += 1
         self.bloco()
 
     def repeticao(self):
         self.consumir("palavras_reservadas")  # while
-        self.expressao_if_while()
+        self.expressao()
         self.consumir("nova_linha")  # quebra de linha obrigatória
         self.linha += 1
         self.bloco()
@@ -67,14 +67,14 @@ class Parser:
             operador = self.consumir("operador").valor
             direita = self.termo()
             esquerda = OperacaoBinaria(esquerda, operador, direita)
-        return esquerda
 
-    def expressao_if_while(self):
-        self.termo()
-        while self.pos < len(self.tokens) and (self.tokens[self.pos].tipo == "operador_logico" or
-                                               self.tokens[self.pos].tipo == "operador_relacionais"):
-            self.consumir_if_while()
-            self.termo()
+        while self.pos < len(self.tokens) and (self.tokens[self.pos].tipo == "operador_logico" or self.tokens[
+            self.pos].tipo == "operador_relacionais"):
+            operador = self.consumir("operador").valor
+            direita = self.termo()
+            esquerda = OperacaoLogica(esquerda, operador, direita)
+
+        return esquerda
 
     def termo(self):
         token = self.tokens[self.pos]
@@ -84,6 +84,12 @@ class Parser:
         elif token.tipo == "variavel":
             self.consumir("variavel")
             return Variavel(token.valor)
+        elif token.tipo == "literal":
+            return Literal(token.valor)
+        elif token.tipo == "palavras_reservadas" and token.valor == "F":
+            return Booleano(False)
+        elif token.tipo == "palavras_reservadas" and token.valor == "V":
+            return Booleano(True)
         else:
             raise SyntaxError(f"Erro de sintaxe: termo inválido na linha {self.linha}")
 
@@ -96,12 +102,12 @@ class Parser:
             raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo} na "
                               f"linha {self.linha}")
 
-    def consumir_if_while(self):
-        tipo_esperado = ("operador_logico", "operador_relacionais")
-        if self.pos < len(self.tokens) and self.tokens[self.pos].tipo in tipo_esperado:
-            token = self.tokens[self.pos]
-            self.pos += 1
-            return token
-        else:
-            raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo} na "
-                              f"linha {self.linha}")
+    # def consumir_if_while(self):
+    #     tipo_esperado = ("operador_logico", "operador_relacionais")
+    #     if self.pos < len(self.tokens) and self.tokens[self.pos].tipo in tipo_esperado:
+    #         token = self.tokens[self.pos]
+    #         self.pos += 1
+    #         return token
+    #     else:
+    #         raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo} na "
+    #                           f"linha {self.linha}")

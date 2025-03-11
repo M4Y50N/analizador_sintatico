@@ -3,7 +3,7 @@ from interpretador import Interpretador
 from parser import Parser
 
 code = """
-var x = 10 + 3.14
+var x = 10 + 3
 if x > 5
     x = 4 + 2
 while x < 20 AND x > 7
@@ -21,7 +21,7 @@ def main():
     ast = parser.analisar()
 
     # Printa estrutura da arvore
-    # ast.print_ast()
+    ast.print_ast()
 
     # Chama o interpretador
     interpretador = Interpretador()

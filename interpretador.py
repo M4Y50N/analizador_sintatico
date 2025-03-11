@@ -1,4 +1,4 @@
-from ast import Programa, Atribuicao, Numero, If, While, Variavel, OperacaoBinaria
+from ast import Programa, Atribuicao, Numero, If, While, Variavel, OperacaoBinaria, OperacaoLogica, Booleano, Literal
 
 
 class Interpretador:
@@ -25,7 +25,33 @@ class Interpretador:
             elif nodo.operador == "/":
                 return esquerda / direita
 
+        elif isinstance(nodo, OperacaoLogica):
+            esquerda = self.executar(nodo.esquerda)
+            direita = self.executar(nodo.direita)
+            if nodo.operador == ">":
+                return esquerda > direita
+            elif nodo.operador == "<":
+                return esquerda < direita
+            elif nodo.operador == ">=":
+                return esquerda >= direita
+            elif nodo.operador == "<=":
+                return esquerda <= direita
+            elif nodo.operador == "==":
+                return esquerda == direita
+            elif nodo.operador == "<>":
+                return esquerda != direita
+            elif nodo.operador == "AND":
+                return esquerda and direita
+            elif nodo.operador == "OR":
+                return esquerda or direita
+
         elif isinstance(nodo, Numero):
+            return nodo.valor
+
+        elif isinstance(nodo, Booleano):
+            return nodo.valor
+
+        elif isinstance(nodo, Literal):
             return nodo.valor
 
         elif isinstance(nodo, Variavel):

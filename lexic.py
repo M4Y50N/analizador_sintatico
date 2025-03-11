@@ -7,10 +7,10 @@ from parser import Parser
 
 class AnalizadorLexico:
     REGEX = {
-        'palavras_reservadas': r'\b(var|if|while)\b',  # \b é para garantir que sejam palavras inteiras
+        'palavras_reservadas': r'\b(var|if|while|V|F)\b',  # \b é para garantir que sejam palavras inteiras
         'operador': r'[+\-*/**//]',  # operadores aritméticos
         'operador_definicao': r'=',
-        'operador_logico': r'OR|AND|NOT',
+        'operador_logico': r'OR|AND',
         'operador_relacionais': r'==|<>|>|<|>=|<=',
         'numero': r'\b\d+(\.\d+)?\b',  # números inteiros e flutuantes
         'variavel': r'[a-zA-Z_]\w*',
