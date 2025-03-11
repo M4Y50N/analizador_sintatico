@@ -1,36 +1,50 @@
+from ast import OperacaoBinaria, Numero, Variavel, Atribuicao, Programa
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
+        self.linha = 1
 
     def analisar(self):
+        comandos = []
         while self.pos < len(self.tokens):
-            print(self.tokens[self.pos].__str__())
-            self.comando()
+            comandos.append(self.comando())
+            return Programa(comandos)
 
     def comando(self):
         if self.tokens[self.pos].tipo == "palavras_reservadas":
             if self.tokens[self.pos].valor == "if":
-                self.condicional()
+                return self.condicional()
             elif self.tokens[self.pos].valor == "while":
-                self.repeticao()
-            elif self.tokens[self.pos].tipo == "variavel" or self.tokens[self.pos].valor == "var":
-                self.atribuicao()
+                return self.repeticao()
+            elif self.tokens[self.pos].valor == "var":
+                return self.atribuicao()
+
+        elif self.tokens[self.pos].tipo == "variavel":
+            return self.atribuicao()
+
         elif self.tokens[self.pos].tipo == "nova_linha":
-            self.consumir("nova_linha")
+            self.linha += 1
+            return self.consumir("nova_linha")
+
+
         else:
-            raise SyntaxError("Erro de sintaxe: comando inválido")
+            raise SyntaxError(f"Erro de sintaxe: comando inválido na linha {self.linha}")
 
     def condicional(self):
         self.consumir("palavras_reservadas")  # confirma se recebe o if e passa para o próximo token
         self.expressao_if_while()
         self.consumir("nova_linha")  # quebra de linha obrigatória
+        self.linha += 1
         self.bloco()
 
     def repeticao(self):
         self.consumir("palavras_reservadas")  # while
         self.expressao_if_while()
         self.consumir("nova_linha")  # quebra de linha obrigatória
+        self.linha += 1
         self.bloco()
 
     def bloco(self):
@@ -41,15 +55,19 @@ class Parser:
         if self.tokens[self.pos].valor == "var" and self.tokens[self.pos].tipo == "palavras_reservadas":
             self.consumir("palavras_reservadas")
 
-        self.consumir("variavel")
+        variavel = Variavel(self.consumir("variavel").valor)
         self.consumir("operador_definicao")
-        self.expressao()
+        expressao = self.expressao()
+
+        return Atribuicao(variavel, expressao)
 
     def expressao(self):
-        self.termo()
+        esquerda = self.termo()
         while self.pos < len(self.tokens) and self.tokens[self.pos].tipo == "operador":
-            self.consumir("operador")
-            self.termo()
+            operador = self.consumir("operador").valor
+            direita = self.termo()
+            esquerda = OperacaoBinaria(esquerda, operador, direita)
+        return esquerda
 
     def expressao_if_while(self):
         self.termo()
@@ -59,20 +77,31 @@ class Parser:
             self.termo()
 
     def termo(self):
-        if self.tokens[self.pos].tipo in ("numero", "variavel"):
-            self.consumir(self.tokens[self.pos].tipo)
+        token = self.tokens[self.pos]
+        if token.tipo == "numero":
+            self.consumir("numero")
+            return Numero(float(token.valor))
+        elif token.tipo == "variavel":
+            self.consumir("variavel")
+            return Variavel(token.valor)
         else:
-            raise SyntaxError("Erro de sintaxe: termo inválido")
+            raise SyntaxError(f"Erro de sintaxe: termo inválido na linha {self.linha}")
 
     def consumir(self, tipo_esperado):
         if self.pos < len(self.tokens) and self.tokens[self.pos].tipo == tipo_esperado:
+            token = self.tokens[self.pos]
             self.pos += 1
+            return token
         else:
-            raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo}")
+            raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo} na "
+                              f"linha {self.linha}")
 
     def consumir_if_while(self):
         tipo_esperado = ("operador_logico", "operador_relacionais")
         if self.pos < len(self.tokens) and self.tokens[self.pos].tipo in tipo_esperado:
+            token = self.tokens[self.pos]
             self.pos += 1
+            return token
         else:
-            raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo}")
+            raise SyntaxError(f"Erro de sintaxe: esperado {tipo_esperado}, encontrado {self.tokens[self.pos].tipo} na "
+                              f"linha {self.linha}")
