@@ -1,9 +1,11 @@
 import re
 import sys
 
+from token_class import Token
+
 
 class AnalizadorSintatico:
-    TOKENS = {
+    REGEX = {
         'palavras_reservadas': r'\b(var|if|while|F|V)\b',  # \b é para garantir que sejam palavras inteiras
         'numero': r'\b\d+(\.\d+)?\b',  # números inteiros e flutuantes
         'variavel': r'[a-zA-Z_]\w*',
@@ -14,23 +16,24 @@ class AnalizadorSintatico:
         'operador_relacionais': r'==|<>|>|<|>=|<='
     }
 
+    tokens = []
+
     def __init__(self, code):
         self.code = code
 
-    def structure_validation(self):
+    def tokenizar(self):
         linhas = self.code.strip().split("\n")
 
         def check(i, linha_to_check, linha_index):
             if len(linha_to_check) == i:
                 return
 
-
             comando = linha_to_check[i]
-            for tipo_token, regex in self.TOKENS.items():
+            for tipo_token, regex in self.REGEX.items():
                 padrao = re.compile(regex)
                 resultado = padrao.fullmatch(comando)
                 if resultado is not None:
-                    print(tipo_token + ": " + comando)
+                    self.tokens.append(Token(tipo_token, comando))
                     return check(i + 1, linha_to_check, linha_index)
             print(f"Error de sintaxe na linha: {linha_index + 1}", file=sys.stderr)
             exit()
@@ -39,3 +42,6 @@ class AnalizadorSintatico:
             linha_splitada = [l for l in linha.split(" ") if l != ""]
 
             check(0, linha_splitada, index)
+
+    def get_token(self):
+        return [tk.__str__() for tk in self.tokens]
