@@ -12,9 +12,9 @@ class AnalizadorLexico:
         'operador_definicao': r'=',
         'operador_logico': r'OR|AND|NOT',
         'operador_relacionais': r'==|<>|>|<|>=|<=',
+        'literal': r'"[^"]*"',  # strings com aspas, qualquer coisa entre aspas
         'numero': r'\b\d+(\.\d+)?\b',  # números inteiros e flutuantes
         'variavel': r'[a-zA-Z_]\w*',
-        'literal': r'"[^"]*"',  # strings com aspas, qualquer coisa entre aspas
     }
 
     tokens = []
@@ -41,7 +41,8 @@ class AnalizadorLexico:
             exit()
 
         for index, linha in enumerate(linhas):
-            linha_splitada = [l for l in linha.split(" ") if l != ""]
+            linha_splitada = []
+            linha_splitada = re.findall(r'"[^"]*"|\S+', linha)
 
             check(0, linha_splitada, index)
 

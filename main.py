@@ -1,9 +1,8 @@
 from lexic import AnalizadorLexico
-from interpretador import Interpretador
 from parser import Parser
 
 code = """
-var x = 10 + 3.14
+var x = 10 + 1 * 3
 if x > 5
     x = 4 + 2
 while x < 20 AND x > 7
@@ -21,13 +20,7 @@ def main():
     ast = parser.analisar()
 
     # Printa estrutura da arvore
-    # ast.print_ast()
-
-    # Chama o interpretador
-    interpretador = Interpretador()
-    interpretador.executar(ast)
-
-    print(interpretador.variaveis)
+    ast.print_ast()
 
 
 if __name__ == '__main__':

@@ -55,6 +55,15 @@ class OperacaoBinaria(Nodo):
 
     def __str__(self):
         return f"{self.operador} {self.direita} {self.esquerda}"
+    
+class OperacaoLogica(Nodo):
+    def __init__(self, esquerda, operador, direita):
+        self.esquerda = esquerda
+        self.operador = operador
+        self.direita = direita
+
+    def __str__(self):
+        return f"{self.operador} {self.direita} {self.esquerda}"
 
 
 class Variavel(Nodo):
@@ -66,6 +75,13 @@ class Variavel(Nodo):
 
 
 class Numero(Nodo):
+    def __init__(self, valor):
+        self.valor = valor
+
+    def __str__(self):
+        return f"{self.valor}"
+
+class Literal(Nodo):
     def __init__(self, valor):
         self.valor = valor
 

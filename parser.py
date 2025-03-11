@@ -1,4 +1,4 @@
-from ast import OperacaoBinaria, Numero, Variavel, Atribuicao, Programa
+from arvore import OperacaoBinaria, Numero, Variavel, Atribuicao, Programa, Literal, OperacaoLogica, If, While
 
 
 class Parser:
@@ -11,7 +11,7 @@ class Parser:
         comandos = []
         while self.pos < len(self.tokens):
             comandos.append(self.comando())
-            return Programa(comandos)
+        return Programa(comandos)
 
     def comando(self):
         if self.tokens[self.pos].tipo == "palavras_reservadas":
@@ -34,18 +34,18 @@ class Parser:
             raise SyntaxError(f"Erro de sintaxe: comando inválido na linha {self.linha}")
 
     def condicional(self):
-        self.consumir("palavras_reservadas")  # confirma se recebe o if e passa para o próximo token
-        self.expressao_if_while()
+        condicao = If(self.consumir("palavras_reservadas"), self.expressao_if_while())  # confirma se recebe o if e passa para o próximo token
         self.consumir("nova_linha")  # quebra de linha obrigatória
         self.linha += 1
         self.bloco()
+        return condicao
 
     def repeticao(self):
-        self.consumir("palavras_reservadas")  # while
-        self.expressao_if_while()
+        rep = While(self.consumir("palavras_reservadas"), self.expressao_if_while())  # while
         self.consumir("nova_linha")  # quebra de linha obrigatória
         self.linha += 1
         self.bloco()
+        return rep
 
     def bloco(self):
         while self.pos < len(self.tokens) and self.tokens[self.pos].tipo != "nova_linha":
@@ -70,11 +70,13 @@ class Parser:
         return esquerda
 
     def expressao_if_while(self):
-        self.termo()
+        esquerda = self.termo()
         while self.pos < len(self.tokens) and (self.tokens[self.pos].tipo == "operador_logico" or
                                                self.tokens[self.pos].tipo == "operador_relacionais"):
-            self.consumir_if_while()
-            self.termo()
+            operador = self.consumir_if_while().valor
+            direita = self.termo()
+            esquerda = OperacaoLogica(esquerda,operador,direita)
+        return esquerda
 
     def termo(self):
         token = self.tokens[self.pos]
@@ -84,6 +86,9 @@ class Parser:
         elif token.tipo == "variavel":
             self.consumir("variavel")
             return Variavel(token.valor)
+        elif token.tipo == "literal":
+            self.consumir("literal")
+            return Literal(token.valor)
         else:
             raise SyntaxError(f"Erro de sintaxe: termo inválido na linha {self.linha}")
 
