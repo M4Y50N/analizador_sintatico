@@ -1,4 +1,4 @@
-from lexic import AnalizadorSintatico
+from lexic import AnalizadorLexico
 from parser import Parser
 
 code = """
@@ -13,7 +13,7 @@ while x < 20 AND x > 1
 def main():
     analizador_sintatico = AnalizadorSintatico(code)
     analizador_sintatico.tokenizar()
-    print(analizador_sintatico.__str_tokens__())
+
     parser = Parser(analizador_sintatico.get_token())
     parser.analisar()
 

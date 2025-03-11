@@ -5,7 +5,7 @@ from token_class import Token
 from parser import Parser
 
 
-class AnalizadorSintatico:
+class AnalizadorLexico:
     REGEX = {
         'palavras_reservadas': r'\b(var|if|while)\b',  # \b é para garantir que sejam palavras inteiras
         'operador': r'[+\-*/**//]',  # operadores aritméticos
